@@ -14,7 +14,7 @@
     //返回的行数
     @property (nonatomic, copy) NSInteger(^rowNumber)() ;
     //设置返回的每一行的高度
-    @property (nonatomic, copy) NSInteger(^optionCellHeight)();
+    @property (nonatomic, copy) float(^optionCellHeight)();
     //点击的回调
     @property (nonatomic, copy) ActionBack selectedOption;
     //在设置可以编辑之后，可在其中自己写删除事件
