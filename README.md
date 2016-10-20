@@ -34,7 +34,7 @@
     @property (nonatomic, assign) CGFloat arrow_offset;//(0 - 1之间)
     
     
- ###弹出视图方法
+###弹出视图方法
  
      //viewPoint       弹出视图之后视图的origin，请根据你显示的方向，填写正确的点
      //width           视图的宽，在无法完全展示时会有所改变
