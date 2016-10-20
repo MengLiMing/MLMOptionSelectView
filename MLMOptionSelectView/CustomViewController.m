@@ -112,6 +112,9 @@
         cell.label1.text = weaklistArray[indexPath.row];
         return cell;
     };
+    _cellView.optionCellHeight = ^{
+        return 60.f;
+    };
     _cellView.rowNumber = ^(){
         return (NSInteger)weaklistArray.count;
     };
@@ -133,6 +136,9 @@
         UITableViewCell *cell = [weakSelf.cellView dequeueReusableCellWithIdentifier:@"DefaultCell"];
         cell.textLabel.text = [NSString stringWithFormat:@"DefaultCell：%@",weaklistArray[indexPath.row]];
         return cell;
+    };
+    _cellView.optionCellHeight = ^{
+        return 40.f;
     };
     _cellView.rowNumber = ^(){
         return (NSInteger)weaklistArray.count;

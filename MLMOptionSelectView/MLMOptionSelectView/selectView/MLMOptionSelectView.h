@@ -40,7 +40,7 @@ typedef void(^ActionBack)(NSIndexPath*);
 ///设置Cell
 @property (nonatomic, copy) UITableViewCell*(^cell)(NSIndexPath *);
 @property (nonatomic, copy) NSInteger(^rowNumber)() ;
-@property (nonatomic, copy) NSInteger(^optionCellHeight)();
+@property (nonatomic, copy) float(^optionCellHeight)();
 #pragma mark - 事件回调
 ///删除回调
 @property (nonatomic, copy) ActionBack removeOption;

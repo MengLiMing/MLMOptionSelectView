@@ -10,7 +10,6 @@
 
 
 static NSInteger maxOption = 5;//默认最大5行
-static CGFloat cell_height = 40.f;
 
 static CGFloat arrow_H = 8;//箭头高
 static CGFloat arrow_W = 15;//箭头宽
@@ -55,6 +54,8 @@ typedef enum : NSUInteger {
     CGFloat arrowHeight;
     //显示时的行数
     CGFloat end_Line;
+    //cell行高
+    CGFloat cell_height;
 
 }
 ///弹出朝向
@@ -86,7 +87,7 @@ typedef enum : NSUInteger {
 #pragma mark - 默认设置
 - (void)initSetting {
     _maxLine = maxOption;
-    
+    cell_height = 40.f;
     self.backColor = [UIColor whiteColor];
     _coverColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3];
 }
@@ -124,13 +125,16 @@ typedef enum : NSUInteger {
     [self reloadData];
     
     //计算高度
+    cell_height = _optionCellHeight?_optionCellHeight():cell_height;
     viewHeight = line * cell_height;
     point = viewPoint;
     viewWidth = width;
-
+    
     //添加视图
     [KEYWINDOW addSubview:self.cover];
     [KEYWINDOW addSubview:self];
+
+    [self addConstraintToCover];
     //弹出方向和动画效果 改变
     _diretionType = directionType;
 
@@ -434,11 +438,20 @@ typedef enum : NSUInteger {
     self.cover.backgroundColor = _coverColor;
 }
 
+- (void)addConstraintToCover {
+    NSLayoutConstraint* leftConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeLeading multiplier:1.0f constant:0.0f];
+    NSLayoutConstraint* rightConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeTrailing multiplier:1.0f constant:0.0f];
+    NSLayoutConstraint* topConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeTop multiplier:1.0f constant:0.0f];
+    NSLayoutConstraint* bottomConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0.0f];
+    [KEYWINDOW addConstraints:@[leftConstraint, rightConstraint, topConstraint, bottomConstraint]];
+}
+
 - (UIView *)cover {
     if (!_cover) {
         _cover = [[UIView alloc] initWithFrame:KEYWINDOW.bounds];
         _cover.backgroundColor = _coverColor;
         _cover.alpha = 0;
+        _cover.translatesAutoresizingMaskIntoConstraints = NO;
         __weak typeof(self) weakself = self;
         [_cover tapHandle:^{
             [weakself dismiss];
