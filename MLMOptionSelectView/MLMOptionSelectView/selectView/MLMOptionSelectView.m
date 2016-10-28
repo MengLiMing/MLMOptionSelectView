@@ -143,8 +143,8 @@ typedef enum : NSUInteger {
     _start_offSetX = targetView?targetView.width:0;
     _start_offSetY = targetView?targetView.height:0;
     
-    //没有参考view时
-    _arrow_offset = targetView?_arrow_offset:0;
+//    //没有参考view时
+//    _arrow_offset = targetView?_arrow_offset:0;
 
     if (_optionType == MLMOptionSelectViewTypeArrow) {
         arrowHeight = arrow_H;

@@ -49,7 +49,7 @@
     _cellView.arrow_offset = 0.9;
     _cellView.vhShow = NO;
     _cellView.optionType = MLMOptionSelectViewTypeArrow;
-    [_cellView showViewFromPoint:CGPointMake(SCREEN_WIDTH - 200 -10, 64 + 1) viewWidth:200 targetView:leftRightView direction:MLMOptionSelectViewBottom];
+    [_cellView showViewFromPoint:CGPointMake(SCREEN_WIDTH - 200 -10, 64 + 1) viewWidth:200 targetView:nil direction:MLMOptionSelectViewBottom];
 }
 
 
