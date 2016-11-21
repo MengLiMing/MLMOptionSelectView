@@ -499,7 +499,9 @@ typedef enum : NSUInteger {
     if (self.selectedOption) {
         self.selectedOption(indexPath);
     }
-    [self dismiss];
+    if (!_multiSelect) {
+        [self dismiss];
+    }
 }
 
 #pragma mark - table_edit

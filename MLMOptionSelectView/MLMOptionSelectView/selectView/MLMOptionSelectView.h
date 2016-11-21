@@ -47,6 +47,8 @@ typedef void(^ActionBack)(NSIndexPath*);
 ///单击回调
 @property (nonatomic, copy) ActionBack selectedOption;
 
+///选择样式，是否开启多选,默认NO
+@property (nonatomic, assign) BOOL multiSelect;
 
 // - 有默认值 - //
 #pragma mark - 起点偏移
