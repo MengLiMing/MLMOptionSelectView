@@ -32,6 +32,8 @@
     @property (nonatomic, assign) BOOL vhShow;
     //改变值，如果是缩放动画时，可以改变动画开始的点
     @property (nonatomic, assign) CGFloat arrow_offset;//(0 - 1之间)
+    ///选择样式，是否开启多选,默认NO
+    @property (nonatomic, assign) BOOL multiSelect;
     
     
 ###弹出视图方法
