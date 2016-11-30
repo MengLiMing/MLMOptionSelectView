@@ -6,6 +6,19 @@
 #效果图展示
 ![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/Untitled.gif)
 
+###更新 - 添加新方法，从点击点展开视图,具体使用参考Demo
+```objc
+/**
+ *  弹出视图
+ *
+ *  @param tapPoint      点击的点
+ *  @param width         能够显示的最大宽度
+ *  @param directionType 弹出方向，在上下或者左右都能显示时，优先选择
+ */
+- (void)showTapPoint:(CGPoint)tapPoint
+           viewWidth:(CGFloat)width
+           direction:(MLMOptionSelectViewDirection)directionType;
+```
 #属性介绍
 ###需要设置的属性
 
