@@ -4,7 +4,8 @@
 可设置弹出的方向，是否有箭头，是否可以编辑删除。
 
 #效果图展示
-![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/Untitled.gif)
+![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/pointShow.gif)
+![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/viewShow.gif)
 
 ###更新 - 添加新方法，从点击点展开视图,具体使用参考Demo
 ```objc
