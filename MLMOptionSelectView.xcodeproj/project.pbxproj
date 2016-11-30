@@ -17,6 +17,7 @@
 		0F9A75211DAE32A10052A6F8 /* CustomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F9A751F1DAE32A10052A6F8 /* CustomViewController.m */; };
 		0FAD06F91DAF8B71004571E2 /* CustomCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FAD06F71DAF8B71004571E2 /* CustomCell.m */; };
 		0FAD06FA1DAF8B71004571E2 /* CustomCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0FAD06F81DAF8B71004571E2 /* CustomCell.xib */; };
+		0FF014A31DEED01F00CF51DF /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FF014A21DEED01F00CF51DF /* MainViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,8 @@
 		0FAD06F61DAF8B71004571E2 /* CustomCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomCell.h; sourceTree = "<group>"; };
 		0FAD06F71DAF8B71004571E2 /* CustomCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomCell.m; sourceTree = "<group>"; };
 		0FAD06F81DAF8B71004571E2 /* CustomCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CustomCell.xib; sourceTree = "<group>"; };
+		0FF014A11DEED01F00CF51DF /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
+		0FF014A21DEED01F00CF51DF /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +117,7 @@
 		0FAD06F31DAF8A2E004571E2 /* DEMO */ = {
 			isa = PBXGroup;
 			children = (
+				0FF014A01DEECF8800CF51DF /* Main */,
 				0FAD06F51DAF8AF2004571E2 /* cell */,
 				0F9A751E1DAE32A10052A6F8 /* CustomViewController.h */,
 				0F9A751F1DAE32A10052A6F8 /* CustomViewController.m */,
@@ -129,6 +133,15 @@
 				0FAD06F81DAF8B71004571E2 /* CustomCell.xib */,
 			);
 			name = cell;
+			sourceTree = "<group>";
+		};
+		0FF014A01DEECF8800CF51DF /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				0FF014A11DEED01F00CF51DF /* MainViewController.h */,
+				0FF014A21DEED01F00CF51DF /* MainViewController.m */,
+			);
+			name = Main;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -157,7 +170,7 @@
 		0F9A74DE1DADEBAE0052A6F8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = MS;
 				TargetAttributes = {
 					0F9A74E51DADEBAE0052A6F8 = {
@@ -204,6 +217,7 @@
 				0F9A74EE1DADEBAE0052A6F8 /* AppDelegate.m in Sources */,
 				0F9A74EB1DADEBAE0052A6F8 /* main.m in Sources */,
 				0F9A75211DAE32A10052A6F8 /* CustomViewController.m in Sources */,
+				0FF014A31DEED01F00CF51DF /* MainViewController.m in Sources */,
 				0F9A750C1DADF0420052A6F8 /* MLMOptionSelectView.m in Sources */,
 				0F9A75181DAE23FE0052A6F8 /* UIView+FrameChange.m in Sources */,
 				0F9A75151DAE1BCD0052A6F8 /* UIView+Category.m in Sources */,
@@ -238,8 +252,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -282,8 +298,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";

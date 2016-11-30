@@ -16,8 +16,11 @@
     NSMutableArray *listArray;
     
     
-    UIView *leftRightView;
+    UILabel *leftRightView;
     UILabel *topBottomView;
+    
+    
+    UILabel *vhBottomView;
 }
 
 @property (nonatomic, strong) MLMOptionSelectView *cellView;
@@ -28,6 +31,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     
     listArray = [NSMutableArray array];
     for (NSInteger i = 0; i < 7; i++) {
@@ -37,12 +41,12 @@
 
     
     [self leftRight];
-
     [self topBottom];
+    [self vhBottom];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"展开" style:UIBarButtonItemStylePlain target:self action:@selector(showView)];
-    
 }
+
 
 - (void)showView {
     [self defaultCell];
@@ -53,13 +57,14 @@
 }
 
 
+#pragma mark - 左右
 - (void)leftRight {
-    leftRightView = [[UIView alloc] initWithFrame:CGRectMake(0, 70, 40, 100)];
+    leftRightView = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, 40, 100)];
     leftRightView.backgroundColor = [UIColor redColor];
+    
     [self.view addSubview:leftRightView];
     UIPanGestureRecognizer *pan1 = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(moveLRView:)];
     [leftRightView addGestureRecognizer:pan1];
-    
     
     [leftRightView tapHandle:^{
         CGRect label3Rect = [MLMOptionSelectView targetView:leftRightView];
@@ -73,31 +78,45 @@
 }
 
 
+#pragma mark - 缩放上下
 - (void)topBottom {
     topBottomView = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, 200, 40)];
+    topBottomView.text = @"缩放上下";
     topBottomView.backgroundColor = [UIColor greenColor];
     [self.view addSubview:topBottomView];
     UIPanGestureRecognizer *pan2 = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(moveLRView:)];
     [topBottomView addGestureRecognizer:pan2];
     
-    
-    WEAK(weakTopB, topBottomView);
-    WEAK(weaklistArray, listArray);
+
     [topBottomView tapHandle:^{
         CGRect label3Rect = [MLMOptionSelectView targetView:topBottomView];
         [self defaultCell];
         _cellView.arrow_offset = .5;
-        _cellView.vhShow = YES;
-        _cellView.optionType = MLMOptionSelectViewTypeCustom;
-        _cellView.selectedOption = ^(NSIndexPath *indexPath) {
-            weakTopB.text = weaklistArray[indexPath.row];
-        };
-        
+        _cellView.vhShow = NO;
+        _cellView.optionType = MLMOptionSelectViewTypeArrow;
         [_cellView showViewFromPoint:CGPointMake(label3Rect.origin.x, label3Rect.origin.y+label3Rect.size.height) viewWidth:200 targetView:topBottomView direction:MLMOptionSelectViewBottom];
     }];
+}
+
+
+#pragma mark - 竖直上下
+- (void)vhBottom {
+    vhBottomView = [[UILabel alloc] initWithFrame:CGRectMake(0, 80, 200, 40)];
+    vhBottomView.text = @"竖直上下";
+    vhBottomView.backgroundColor = [UIColor greenColor];
+    [self.view addSubview:vhBottomView];
+    UIPanGestureRecognizer *pan2 = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(moveLRView:)];
+    [vhBottomView addGestureRecognizer:pan2];
     
-    
-    
+
+    [vhBottomView tapHandle:^{
+        CGRect label3Rect = [MLMOptionSelectView targetView:vhBottomView];
+        [self defaultCell];
+        _cellView.arrow_offset = .5;
+        _cellView.vhShow = YES;
+        _cellView.optionType = MLMOptionSelectViewTypeCustom;
+        [_cellView showViewFromPoint:CGPointMake(label3Rect.origin.x, label3Rect.origin.y+label3Rect.size.height) viewWidth:200 targetView:vhBottomView direction:MLMOptionSelectViewBottom];
+    }];
 }
 
 
@@ -125,7 +144,6 @@
         }
     };
 }
-
 
 - (void)defaultCell {
     WEAK(weaklistArray, listArray);

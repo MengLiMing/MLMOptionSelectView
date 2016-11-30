@@ -66,7 +66,7 @@ typedef void(^ActionBack)(NSIndexPath*);
 ///背景层颜色
 @property (nonatomic, strong) UIColor *coverColor;
 
-#pragma mark - 重要：改变箭头顶点的位置和动画开始位置
+#pragma mark - 重要：改变箭头顶点的位置和动画开始位置，有参照物时设置，没有参照物时，不需要设置
 @property (nonatomic, assign) CGFloat arrow_offset;//(0 - 1之间)
 
 ///缩放 NO 竖直或水平展开 YES
@@ -101,10 +101,18 @@ typedef void(^ActionBack)(NSIndexPath*);
                targetView:(UIView *)targetView
                 direction:(MLMOptionSelectViewDirection)directionType;
 
+/**
+ *  弹出视图
+ *
+ *  @param tapPoint      点击的点
+ *  @param width         能够显示的最大宽度
+ *  @param directionType 弹出方向，在上下或者左右都能显示时，优先选择
+ */
+- (void)showTapPoint:(CGPoint)tapPoint
+           viewWidth:(CGFloat)width
+           direction:(MLMOptionSelectViewDirection)directionType;
+
+///消失
 - (void)dismiss;
-
-
-
-
 
 @end
