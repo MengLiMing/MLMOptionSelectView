@@ -30,6 +30,7 @@ typedef enum : NSUInteger {
     
 } MLMOptionSelectViewEndShow;
 
+
 @interface MLMOptionSelectView () <UITableViewDelegate,UITableViewDataSource>
 {
     ///向下或者向上展开超出屏幕时偏移的距离
@@ -42,32 +43,30 @@ typedef enum : NSUInteger {
     CGPoint arrow2;
     CGPoint arrow3;
     
-    CALayer *arrow_layer;
-    
+    CAShapeLayer *arrow_layer;
     //弹出视图的origin
     CGPoint point;
-    
     //弹出之后的宽高
     CGFloat viewHeight;
     CGFloat viewWidth;
     //弹出之后的起点
     CGPoint startPoint;
-    
     //箭头高
     CGFloat arrowHeight;
     //显示时的行数
     CGFloat end_Line;
     //cell行高
     CGFloat cell_height;
-    
     //是否有参照view
     UIView *_targetView;
-
     //是否翻转
     BOOL overturn;
+    
 }
 ///弹出朝向
 @property (nonatomic, assign) MLMOptionSelectViewDirection diretionType;
+///view
+@property (nonatomic, strong) UIView *showView;
 ///背景层
 @property (nonatomic, strong) UIView *cover;
 ///弹出时展示的方向
@@ -106,6 +105,11 @@ typedef enum : NSUInteger {
     self.backgroundColor = _backColor;
 }
 
+- (void)setCornerRadius:(CGFloat)cornerRadius {
+    _cornerRadius = cornerRadius;
+    self.layer.cornerRadius = cornerRadius;
+}
+
 #pragma mark - 计算弹出位置
 + (CGRect)targetView:(UIView *)targetView {
     CGRect rect = [KEYWINDOW convertRect:targetView.frame fromView:targetView.superview];
@@ -137,7 +141,7 @@ typedef enum : NSUInteger {
     
     //添加视图
     [KEYWINDOW addSubview:self.cover];
-    [KEYWINDOW addSubview:self];
+    [self.showView addSubview:self];
     
     [self addConstraintToCover];
     //弹出方向和动画效果 改变
@@ -190,7 +194,7 @@ typedef enum : NSUInteger {
                 
                 _diretionType = MLMOptionSelectViewBottom;
                 startPoint = CGPointMake(point.x - viewWidth * _arrow_offset, point.y + arrowHeight);
-                self.layer.anchorPoint = CGPointMake(_arrow_offset, 0);
+                self.showView.layer.anchorPoint = CGPointMake(_arrow_offset, 0);
             } else {
                 end_Line = (point.y-arrowHeight)/cell_height;
                 end_Line = end_Line>line?line:end_Line;
@@ -198,7 +202,7 @@ typedef enum : NSUInteger {
 
                 _diretionType = MLMOptionSelectViewTop;
                 startPoint = CGPointMake(point.x - viewWidth * _arrow_offset, point.y - arrowHeight - viewHeight);
-                self.layer.anchorPoint = CGPointMake(_arrow_offset, 1);
+                self.showView.layer.anchorPoint = CGPointMake(_arrow_offset, 1);
             }
         }
             break;
@@ -224,12 +228,12 @@ typedef enum : NSUInteger {
                 viewWidth = viewWidth < (point.x-arrowHeight) ? viewWidth : (point.x-arrowHeight);
                 _diretionType = MLMOptionSelectViewLeft;
                 startPoint = CGPointMake(tapPoint.x - arrowHeight - viewWidth, tapPoint.y - viewHeight * _arrow_offset);
-                self.layer.anchorPoint = CGPointMake(1, _arrow_offset);
+                self.showView.layer.anchorPoint = CGPointMake(1, _arrow_offset);
             } else {
                 viewWidth = viewWidth > (SCREEN_WIDTH - point.x-arrowHeight)?(SCREEN_WIDTH - point.x-arrowHeight):viewWidth;
                 _diretionType = MLMOptionSelectViewRight;
                 startPoint = CGPointMake(tapPoint.x + arrowHeight, tapPoint.y - viewHeight * _arrow_offset);
-                self.layer.anchorPoint = CGPointMake(0, _arrow_offset);
+                self.showView.layer.anchorPoint = CGPointMake(0, _arrow_offset);
             }
         }
             break;
@@ -339,7 +343,7 @@ typedef enum : NSUInteger {
             
                 startPoint = CGPointMake(point.x+_start_offSetX - viewWidth, point.y+_start_offSetY+arrowHeight);
             }
-            self.layer.anchorPoint = CGPointMake(_arrow_offset,0);
+            self.showView.layer.anchorPoint = CGPointMake(_arrow_offset,0);
 
         }
             break;
@@ -364,7 +368,7 @@ typedef enum : NSUInteger {
                 viewWidth = (point.x+_start_offSetX)>viewWidth?viewWidth : point.x+_start_offSetX;
                 startPoint = CGPointMake(point.x+_start_offSetX-viewWidth, point.y-_start_offSetY-viewHeight-arrowHeight);
             }
-            self.layer.anchorPoint = CGPointMake(_arrow_offset, 1);
+            self.showView.layer.anchorPoint = CGPointMake(_arrow_offset, 1);
 
         }
             break;
@@ -392,7 +396,7 @@ typedef enum : NSUInteger {
 
                 startPoint = CGPointMake(point.x - _start_offSetX - viewWidth-arrowHeight, point.y+_start_offSetY-viewHeight);
             }
-            self.layer.anchorPoint = CGPointMake(1, _arrow_offset);
+            self.showView.layer.anchorPoint = CGPointMake(1, _arrow_offset);
         }
             break;
         case MLMOptionSelectViewRight:
@@ -419,7 +423,7 @@ typedef enum : NSUInteger {
 
                 startPoint = CGPointMake(point.x + _start_offSetX+arrowHeight, point.y+_start_offSetY-viewHeight);
             }
-            self.layer.anchorPoint = CGPointMake(0, _arrow_offset);
+            self.showView.layer.anchorPoint = CGPointMake(0, _arrow_offset);
         }
             break;
         default:
@@ -431,16 +435,58 @@ typedef enum : NSUInteger {
 
 #pragma mark - showAndDraw
 - (void)showAndDraw {
+    //startPoint计算是以self为准，此处变换为backView
+    CGRect showFrame;
+    switch (_diretionType) {
+        case MLMOptionSelectViewTop:
+        {
+            showFrame = CGRectMake(startPoint.x, startPoint.y, viewWidth, viewHeight + arrowHeight);
+            self.origin = CGPointZero;
+        }
+            break;
+        case MLMOptionSelectViewBottom:
+        {
+            showFrame = CGRectMake(startPoint.x, startPoint.y - arrowHeight, viewWidth, viewHeight + arrowHeight);
+            self.origin = CGPointMake(0, arrowHeight);
+        }
+            break;
+        case MLMOptionSelectViewLeft:
+        {
+            showFrame = CGRectMake(startPoint.x, startPoint.y, viewWidth + arrowHeight, viewHeight);
+            self.origin = CGPointZero;
+        }
+            break;
+        case MLMOptionSelectViewRight:
+        {
+            showFrame = CGRectMake(startPoint.x - arrowHeight, startPoint.y, viewWidth + arrowHeight, viewHeight);
+            self.origin = CGPointMake(arrowHeight, 0);
+        }
+            break;
+        default:
+            break;
+    }
+    self.showView.frame = showFrame;
+    [KEYWINDOW addSubview:self.showView];
     
     self.size = CGSizeMake(viewWidth, viewHeight);
-    self.origin = startPoint;
     
     if (_optionType == MLMOptionSelectViewTypeArrow) {
         [self drowArrow];
     }
+    
     [self animation_show];
 }
 
+
+
+#pragma mark - showView
+- (UIView *)showView {
+    if (!_showView) {
+        _showView = [[UIView alloc] init];
+        _showView.backgroundColor = [UIColor clearColor];
+    }
+    return _showView;
+}
 #pragma mark - 画箭头
 - (void)drowArrow {
     //根据锚点的位置画箭头
@@ -476,21 +522,17 @@ typedef enum : NSUInteger {
         default:
             break;
     }
-    arrow_layer = [[CALayer alloc] init];
-    arrow_layer.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    arrow_layer.delegate = self;
-    [arrow_layer setNeedsDisplay];
-    [KEYWINDOW.layer addSublayer:arrow_layer];
-}
-
-- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
-    CGContextSetFillColorWithColor(ctx, _backColor.CGColor);
-    CGContextSetStrokeColorWithColor(ctx, [UIColor clearColor].CGColor);
-    CGContextMoveToPoint(ctx, arrow1.x, arrow1.y);
-    CGContextAddLineToPoint(ctx, arrow2.x, arrow2.y);
-    CGContextAddLineToPoint(ctx, arrow3.x, arrow3.y);
-    CGContextClosePath(ctx);
-    CGContextDrawPath(ctx, kCGPathFillStroke);
+    if (!arrow_layer) {
+        arrow_layer = [[CAShapeLayer alloc] init];
+        arrow_layer.fillColor = _backColor.CGColor;
+    }
+    UIBezierPath *arrowPath = [UIBezierPath bezierPath];
+    [arrowPath moveToPoint:arrow1];
+    [arrowPath addLineToPoint:arrow2];
+    [arrowPath addLineToPoint:arrow3];
+    [arrowPath closePath];
+    arrow_layer.path = arrowPath.CGPath;
+    [self.showView.layer addSublayer:arrow_layer];
 }
 
 #pragma mark - 动画
@@ -498,7 +540,7 @@ typedef enum : NSUInteger {
     [self zoomOrOn];
     [UIView animateWithDuration:.3 animations:^{
         self.cover.alpha = .3;
-        self.transform = CGAffineTransformMakeScale(1, 1);
+        self.showView.transform = CGAffineTransformMakeScale(1, 1);
     }];
 }
 
@@ -508,24 +550,22 @@ typedef enum : NSUInteger {
         [self zoomOrOn];
         self.cover.alpha = 0;
     } completion:^(BOOL finished) {
-        self.transform= CGAffineTransformIdentity;
-        [self removeFromSuperview];
+        self.showView.transform= CGAffineTransformIdentity;
+        [self.showView removeFromSuperview];
         [self.cover removeFromSuperview];
-        [arrow_layer removeFromSuperlayer];
     }];
 }
-
 
 #pragma mark - 是缩放或者展开
 - (void)zoomOrOn {
     if (_vhShow) {
         if (_diretionType==MLMOptionSelectViewBottom || _diretionType==MLMOptionSelectViewTop) {
-            self.transform = CGAffineTransformMakeScale(1, 0.001);
+            self.showView.transform = CGAffineTransformMakeScale(1, 0.001);
         } else {
-            self.transform = CGAffineTransformMakeScale(0.001, 1);
+            self.showView.transform = CGAffineTransformMakeScale(0.001, 1);
         }
     } else {
-        self.transform = CGAffineTransformMakeScale(0.001, 0.001);
+        self.showView.transform = CGAffineTransformMakeScale(0.001, 0.001);
     }
 }
 
@@ -578,14 +618,12 @@ typedef enum : NSUInteger {
     }
 }
 
-
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return _optionCellHeight?_optionCellHeight():cell_height;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
     return 0.00001f;
-
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -637,6 +675,7 @@ typedef enum : NSUInteger {
             case MLMOptionSelectViewEndShowRightBottom:
             {
                 self.height -= cell_height;
+                self.showView.height -= cell_height;
             }
                 break;
             case MLMOptionSelectViewEndShowTopLeft:
@@ -645,7 +684,8 @@ typedef enum : NSUInteger {
             case MLMOptionSelectViewEndShowRightTop:
             {
                 self.height -= cell_height;
-                self.y += cell_height;
+                self.showView.height -= cell_height;
+                self.showView.y += cell_height;
             }
                 break;
             default:

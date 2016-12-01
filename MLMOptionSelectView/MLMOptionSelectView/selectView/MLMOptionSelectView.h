@@ -50,6 +50,9 @@ typedef void(^ActionBack)(NSIndexPath*);
 ///选择样式，是否开启多选,默认NO
 @property (nonatomic, assign) BOOL multiSelect;
 
+///圆角大小,默认5
+@property (nonatomic, assign) CGFloat cornerRadius;
+
 // - 有默认值 - //
 #pragma mark - 起点偏移
 ///最大显示行数，默认大于5行显示5行

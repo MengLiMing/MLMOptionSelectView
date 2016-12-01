@@ -175,6 +175,7 @@
 				TargetAttributes = {
 					0F9A74E51DADEBAE0052A6F8 = {
 						CreatedOnToolsVersion = 7.2.1;
+						DevelopmentTeam = 5MEUQ98276;
 					};
 				};
 			};
@@ -329,6 +330,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 5MEUQ98276;
 				INFOPLIST_FILE = MLMOptionSelectView/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mlm.MLMOptionSelectView;
@@ -340,6 +342,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 5MEUQ98276;
 				INFOPLIST_FILE = MLMOptionSelectView/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mlm.MLMOptionSelectView;
