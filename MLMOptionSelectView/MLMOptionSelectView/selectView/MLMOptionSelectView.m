@@ -132,7 +132,6 @@ typedef enum : NSUInteger {
 
     _targetView = targetView;
     
-    [self reloadData];
     
     //计算高度
     cell_height = _optionCellHeight?_optionCellHeight():cell_height;
@@ -165,6 +164,9 @@ typedef enum : NSUInteger {
 - (void)showTapPoint:(CGPoint)tapPoint
            viewWidth:(CGFloat)width
            direction:(MLMOptionSelectViewDirection)directionType {
+    
+    [self reloadData];
+
     //显示行数
     NSInteger line = [self showLine];
     if (line == 0) {
@@ -525,6 +527,7 @@ typedef enum : NSUInteger {
     if (!arrow_layer) {
         arrow_layer = [[CAShapeLayer alloc] init];
         arrow_layer.fillColor = _backColor.CGColor;
+        [self.showView.layer addSublayer:arrow_layer];
     }
     UIBezierPath *arrowPath = [UIBezierPath bezierPath];
     [arrowPath moveToPoint:arrow1];
@@ -532,7 +535,6 @@ typedef enum : NSUInteger {
     [arrowPath addLineToPoint:arrow3];
     [arrowPath closePath];
     arrow_layer.path = arrowPath.CGPath;
-    [self.showView.layer addSublayer:arrow_layer];
 }
 
 #pragma mark - 动画
@@ -667,31 +669,29 @@ typedef enum : NSUInteger {
     if (end_Line <= [self showLine]) {
         return;
     }
+    self.height -= cell_height;
+    self.showView.height -= cell_height;
+    if (_optionType == MLMOptionSelectViewTypeArrow) {
+        [self drowArrow];
+    }
     [UIView animateWithDuration:.3 animations:^{
-        switch (_endShowType) {
-            case MLMOptionSelectViewEndShowBottomLeft:
-            case MLMOptionSelectViewEndShowBottomRight:
-            case MLMOptionSelectViewEndShowLeftBottom:
-            case MLMOptionSelectViewEndShowRightBottom:
+        switch (_diretionType) {
+            case MLMOptionSelectViewTop:
             {
-                self.height -= cell_height;
-                self.showView.height -= cell_height;
+                self.showView.y += cell_height;
             }
                 break;
-            case MLMOptionSelectViewEndShowTopLeft:
-            case MLMOptionSelectViewEndShowTopRight:
-            case MLMOptionSelectViewEndShowLeftTop:
-            case MLMOptionSelectViewEndShowRightTop:
+            case MLMOptionSelectViewRight:
+            case MLMOptionSelectViewLeft:
             {
-                self.height -= cell_height;
-                self.showView.height -= cell_height;
-                self.showView.y += cell_height;
+                self.showView.y += cell_height*_arrow_offset;
             }
                 break;
             default:
                 break;
         }
     }];
+
 }
 
 @end
