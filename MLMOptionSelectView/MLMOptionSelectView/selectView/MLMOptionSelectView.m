@@ -118,7 +118,7 @@ typedef enum : NSUInteger {
 
 #pragma mark - 显示多少行
 - (CGFloat)showLine {
-    NSInteger row = [self numberOfRowsInSection:0];
+    NSInteger row = _rowNumber?_rowNumber():0;
     NSInteger line = row > _maxLine ? _maxLine : row;
     return line;
 }
@@ -131,8 +131,8 @@ typedef enum : NSUInteger {
          direction:(MLMOptionSelectViewDirection)directionType {
 
     _targetView = targetView;
-    
-    
+    [self reloadData];
+
     //计算高度
     cell_height = _optionCellHeight?_optionCellHeight():cell_height;
     point = viewPoint;
@@ -165,7 +165,6 @@ typedef enum : NSUInteger {
            viewWidth:(CGFloat)width
            direction:(MLMOptionSelectViewDirection)directionType {
     
-    [self reloadData];
 
     //显示行数
     NSInteger line = [self showLine];
@@ -474,6 +473,11 @@ typedef enum : NSUInteger {
     
     if (_optionType == MLMOptionSelectViewTypeArrow) {
         [self drowArrow];
+    } else {
+        if (arrow_layer) {
+            [arrow_layer removeFromSuperlayer];
+            arrow_layer = nil;
+        }
     }
     
     [self animation_show];
