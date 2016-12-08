@@ -7,6 +7,26 @@
 ![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/pointShow.gif)
 ![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/viewShow.gif)
 
+###更新 - 添加属性
+```objc
+///显示时，距离四周的间距,在有参考view时，弹出视图的一边和参考视图对齐，只有相应的两个方向的间距为设置的间距
+@property (nonatomic, assign) UIEdgeInsets edgeInsets;
+```
+###更新 - 更改之前的弹出视图方法,具体使用参考demo
+```objc
+/**
+ *  弹出视图
+ *
+ *  @param offset_Scale     弹出点在对用方向view上的百分比
+ *  @param width            能够显示的最大宽度
+ *  @param targetView       弹出视图围绕显示的view
+ *  @param directionType    弹出方向，在上下或者左右都能显示时，优先选择
+ */
+- (void)showOffSetScale:(CGFloat)offset_Scale
+              viewWidth:(CGFloat)width
+             targetView:(UIView *)targetView
+              direction:(MLMOptionSelectViewDirection)directionType;
+```
 ###更新 - 添加新方法，从点击点展开视图,具体使用参考Demo
 ```objc
 /**
@@ -48,17 +68,6 @@
     @property (nonatomic, assign) CGFloat arrow_offset;//(0 - 1之间)
     ///选择样式，是否开启多选,默认NO
     @property (nonatomic, assign) BOOL multiSelect;
-    
-    
-###弹出视图方法
- 
-     //viewPoint       弹出视图之后视图的origin，请根据你显示的方向，填写正确的点
-     //width           视图的宽，在无法完全展示时会有所改变
-     //target          如果你的弹出view需要在某个view的周围显示，不要犹豫就填它
-     //directionType   展示的方向，在左右或者上下都能显示的情况下，优先选择的方向
-     - (void)showViewFromPoint:(CGPoint)viewPoint
-                     viewWidth:(CGFloat)width
-                    targetView:(UIView *)targetView
-                     direction:(MLMOptionSelectViewDirection)directionType;
+
  
     
