@@ -14,23 +14,6 @@ static NSInteger maxOption = 5;//默认最大5行
 static CGFloat arrow_H = 8;//箭头高
 static CGFloat arrow_W = 15;//箭头宽
 
-
-typedef enum : NSUInteger {
-    MLMOptionSelectViewEndShowTopLeft,//上左
-    MLMOptionSelectViewEndShowTopRight,//上右
-
-    MLMOptionSelectViewEndShowBottomLeft,//下左
-    MLMOptionSelectViewEndShowBottomRight,//下右
-    
-    MLMOptionSelectViewEndShowLeftTop,//左上
-    MLMOptionSelectViewEndShowLeftBottom,//左下
-
-    MLMOptionSelectViewEndShowRightTop,//右上
-    MLMOptionSelectViewEndShowRightBottom//右下
-    
-} MLMOptionSelectViewEndShow;
-
-
 @interface MLMOptionSelectView () <UITableViewDelegate,UITableViewDataSource>
 {
     ///向下或者向上展开超出屏幕时偏移的距离
@@ -54,11 +37,16 @@ typedef enum : NSUInteger {
     //箭头高
     CGFloat arrowHeight;
     //显示时的行数
-    CGFloat end_Line;
+    NSInteger end_Line;
     //cell行高
     CGFloat cell_height;
+    
     //是否有参照view
     UIView *_targetView;
+    //targetRect
+    CGRect _targetRect;
+    //弹出点在对应方向上的比例
+    CGFloat _target_scale;
     //是否翻转
     BOOL overturn;
     
@@ -69,8 +57,8 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) UIView *showView;
 ///背景层
 @property (nonatomic, strong) UIView *cover;
-///弹出时展示的方向
-@property (nonatomic, assign) MLMOptionSelectViewEndShow endShowType;
+///箭头顶点的位置和动画开始位置
+@property (nonatomic, assign) CGFloat arrow_offset;//(0 - 1之间)
 
 @end
 
@@ -97,6 +85,7 @@ typedef enum : NSUInteger {
     cell_height = 40.f;
     self.backColor = [UIColor whiteColor];
     _coverColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3];
+    _edgeInsets = UIEdgeInsetsMake(64, 10, 10, 10);
 }
 
 
@@ -129,34 +118,38 @@ typedef enum : NSUInteger {
              width:(CGFloat)width
         targetView:(UIView *)targetView
          direction:(MLMOptionSelectViewDirection)directionType {
+    //显示行数
+    NSInteger line = [self showLine];
+    if (line == 0) {
+        return;
+    }
 
-    _targetView = targetView;
-    [self reloadData];
+    point = viewPoint;
+
 
     //计算高度
     cell_height = _optionCellHeight?_optionCellHeight():cell_height;
-    point = viewPoint;
-    viewWidth = width;
+    viewHeight = line * cell_height;
     
+    _targetView = targetView;
+
+    [self reloadData];
+    
+    CGFloat maxWidth = SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right;
+    
+    viewWidth = width > maxWidth ? maxWidth : width;
     //添加视图
     [KEYWINDOW addSubview:self.cover];
     [self.showView addSubview:self];
-    
     [self addConstraintToCover];
     //弹出方向和动画效果 改变
     _diretionType = directionType;
-    
-    
-    //展开时为了，能够让展开视图更好的展示,可能会调整左右偏移的位置，如果弹出是围绕一块区域，就可以通过下方的数据进行适配调整上下左右展开的方式
-    _start_offSetX = targetView?targetView.width:0;
-    _start_offSetY = targetView?targetView.height:0;
     
     if (_optionType == MLMOptionSelectViewTypeArrow) {
         arrowHeight = arrow_H;
     } else {
         arrowHeight = 0;
     }
-    
 }
 
 
@@ -164,142 +157,91 @@ typedef enum : NSUInteger {
 - (void)showTapPoint:(CGPoint)tapPoint
            viewWidth:(CGFloat)width
            direction:(MLMOptionSelectViewDirection)directionType {
-    
-
-    //显示行数
-    NSInteger line = [self showLine];
-    if (line == 0) {
-        return;
-    }
-    viewHeight = line * cell_height;
-    [self beforeShow:CGPointZero width:width targetView:nil direction:directionType];
-    point = tapPoint;
-    overturn = NO;
+    [self beforeShow:tapPoint width:width targetView:nil direction:directionType];
     //调节显示
-    switch (_diretionType) {
-        case MLMOptionSelectViewBottom:
-        case MLMOptionSelectViewTop:
-        {
-            if (point.x < width/2) {
-                _arrow_offset = point.x / width;
-            } else if (point.x > width/2 && point.x < (SCREEN_WIDTH - width/2)) {
-                _arrow_offset = .5;
-            } else {
-                _arrow_offset = (1 - (SCREEN_WIDTH - point.x) / width);
-            }
-            
-            if ((SCREEN_HEIGHT-point.y-arrowHeight) > viewHeight || SCREEN_HEIGHT/2 > point.y) {
-                end_Line = (SCREEN_HEIGHT-point.y-arrowHeight)/cell_height;
-                end_Line = end_Line>line?line:end_Line;
-                viewHeight = end_Line * cell_height;
-                
-                _diretionType = MLMOptionSelectViewBottom;
-                startPoint = CGPointMake(point.x - viewWidth * _arrow_offset, point.y + arrowHeight);
-                self.showView.layer.anchorPoint = CGPointMake(_arrow_offset, 0);
-            } else {
-                end_Line = (point.y-arrowHeight)/cell_height;
-                end_Line = end_Line>line?line:end_Line;
-                viewHeight = end_Line * cell_height;
-
-                _diretionType = MLMOptionSelectViewTop;
-                startPoint = CGPointMake(point.x - viewWidth * _arrow_offset, point.y - arrowHeight - viewHeight);
-                self.showView.layer.anchorPoint = CGPointMake(_arrow_offset, 1);
-            }
-        }
-            break;
-        case MLMOptionSelectViewLeft:
-        case MLMOptionSelectViewRight:
-        {
-            if ((SCREEN_HEIGHT -point.y)>viewHeight || point.y<SCREEN_HEIGHT/2) {
-                end_Line = (SCREEN_HEIGHT - point.y)/cell_height;
-            } else {
-                end_Line = point.y/cell_height;
-            }
-            end_Line = end_Line>line?line:end_Line;
-            viewHeight = end_Line * cell_height;
-            
-            if (point.y < viewHeight/2) {
-                _arrow_offset = point.y / viewHeight;
-            } else if (point.y > viewHeight/2 && point.y < (SCREEN_HEIGHT - viewHeight/2)) {
-                _arrow_offset = .5;
-            } else {
-                _arrow_offset = (1 - (SCREEN_HEIGHT - point.y) / viewHeight);
-            }
-            if ((point.x-arrowHeight) >viewWidth || point.x > SCREEN_WIDTH/2) {//左
-                viewWidth = viewWidth < (point.x-arrowHeight) ? viewWidth : (point.x-arrowHeight);
-                _diretionType = MLMOptionSelectViewLeft;
-                startPoint = CGPointMake(tapPoint.x - arrowHeight - viewWidth, tapPoint.y - viewHeight * _arrow_offset);
-                self.showView.layer.anchorPoint = CGPointMake(1, _arrow_offset);
-            } else {
-                viewWidth = viewWidth > (SCREEN_WIDTH - point.x-arrowHeight)?(SCREEN_WIDTH - point.x-arrowHeight):viewWidth;
-                _diretionType = MLMOptionSelectViewRight;
-                startPoint = CGPointMake(tapPoint.x + arrowHeight, tapPoint.y - viewHeight * _arrow_offset);
-                self.showView.layer.anchorPoint = CGPointMake(0, _arrow_offset);
-            }
-        }
-            break;
-        default:
-            break;
-    }
-    
+    [self showByDiretionType];
     [self showAndDraw];
 }
 
 #pragma mark - 弹出的方法
-- (void)showViewFromPoint:(CGPoint)viewPoint
-                viewWidth:(CGFloat)width
-               targetView:(UIView *)targetView
-                direction:(MLMOptionSelectViewDirection)directionType {
-    //显示行数
-    NSInteger line = [self showLine];
-    if (line == 0) {
-        return;
+- (void)showOffSetScale:(CGFloat)offset_Scale
+              viewWidth:(CGFloat)width
+             targetView:(UIView *)targetView
+              direction:(MLMOptionSelectViewDirection)directionType {
+    _target_scale = offset_Scale;
+    _targetRect = [MLMOptionSelectView targetView:targetView];
+    CGPoint showP;
+    switch (directionType) {
+        case MLMOptionSelectViewTop:
+        {
+            showP = CGPointMake(_targetRect.origin.x + _targetRect.size.width * _target_scale, _targetRect.origin.y);
+        }
+            break;
+        case MLMOptionSelectViewBottom:
+        {
+            showP = CGPointMake(_targetRect.origin.x + _targetRect.size.width * _target_scale, _targetRect.origin.y+_targetRect.size.height);
+        }
+            break;
+        case MLMOptionSelectViewLeft:
+        {
+            showP = CGPointMake(_targetRect.origin.x, _targetRect.origin.y + _targetRect.size.height * _target_scale);
+        }
+            break;
+        case MLMOptionSelectViewRight:
+        {
+            showP = CGPointMake(_targetRect.origin.x + _targetRect.size.width, _targetRect.origin.y + _targetRect.size.height * _target_scale);
+        }
+            break;
+        default:
+            break;
     }
-    viewHeight = line * cell_height;
-    [self beforeShow:viewPoint width:width targetView:targetView direction:directionType];
+    [self beforeShow:showP width:width targetView:targetView direction:directionType];
+    //调节显示
+    [self showByDiretionType];
+    [self showAndDraw];
+}
 
-    //调节显示,确定是否翻转和翻转后的展示方向
+#pragma mark - 改变弹出方向
+- (void)showByDiretionType {
+    _start_offSetY = _targetView?_targetView.height:0;
+    _start_offSetX = _targetView?_targetView.width:0;
     switch (_diretionType) {
         case MLMOptionSelectViewBottom:
         {
-            if ((SCREEN_HEIGHT-point.y-arrowHeight) > viewHeight || (SCREEN_HEIGHT-_start_offSetY)/2 > point.y) {
-                overturn = NO;
+            if ((SCREEN_HEIGHT - point.y - arrowHeight - _edgeInsets.bottom) > viewHeight ||(point.y - _edgeInsets.top - _start_offSetY) < (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom - _start_offSetY)/2 ) {
                 self.diretionType = MLMOptionSelectViewBottom;
             } else {
-                overturn = YES;
+                point.y -= _start_offSetY;
                 self.diretionType = MLMOptionSelectViewTop;
             }
         }
             break;
         case MLMOptionSelectViewTop:
         {
-            if ((point.y-arrowHeight) > viewHeight || point.y > (SCREEN_HEIGHT-_start_offSetY)/2) {
-                overturn = NO;
+            if ((point.y - arrowHeight - _edgeInsets.top) > viewHeight || (point.y - _edgeInsets.top) > (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom - _start_offSetY)/2) {
                 self.diretionType = MLMOptionSelectViewTop;
             } else {
-                overturn = YES;
+                point.y += _start_offSetY;
                 self.diretionType = MLMOptionSelectViewBottom;
             }
         }
             break;
         case MLMOptionSelectViewLeft:
         {
-            if ((point.x-arrowHeight) >viewWidth || point.x > (SCREEN_WIDTH - _start_offSetX)/2) {//左
-                overturn = NO;
+            if ((point.x- arrowHeight - _edgeInsets.left) >viewWidth || (point.x - _edgeInsets.left) > (SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right- _start_offSetX)/2) {//左
                 self.diretionType = MLMOptionSelectViewLeft;
             } else {
-                overturn = YES;
+                point.x += _start_offSetX;
                 self.diretionType = MLMOptionSelectViewRight;
             }
         }
             break;
         case MLMOptionSelectViewRight:
         {
-            if ((SCREEN_WIDTH-point.x-arrowHeight)>viewWidth || point.x < (SCREEN_WIDTH - _start_offSetX)/2) {
-                overturn = NO;
+            if ((SCREEN_WIDTH-point.x-arrowHeight - _edgeInsets.right)>viewWidth || (point.x - _edgeInsets.left - _start_offSetX) < (SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right - _start_offSetX)/2 ) {
                 self.diretionType = MLMOptionSelectViewRight;
             } else {
-                overturn = YES;
+                point.x -= _start_offSetX;
                 self.diretionType = MLMOptionSelectViewLeft;
             }
         }
@@ -307,124 +249,82 @@ typedef enum : NSUInteger {
         default:
             break;
     }
-    
-    [self showAndDraw];
 }
-
-
 
 #pragma mark - 计算后的展示方向
 - (void)setDiretionType:(MLMOptionSelectViewDirection)diretionType {
     _diretionType = diretionType;
-    NSInteger line = [self showLine];
+    NSInteger line = viewHeight/cell_height;
+    
     switch (diretionType) {
         case MLMOptionSelectViewBottom:
-        {
-            //是否需要翻转
-            if (overturn) {
-                _start_offSetY = _targetView.height;
-            } else {
-                _start_offSetY = 0;
-            }
-            
-            end_Line = (SCREEN_HEIGHT - point.y -_start_offSetY-arrowHeight)/cell_height;
-            end_Line = end_Line>line?line:end_Line;
-            viewHeight = end_Line * cell_height;
-
-            if ((SCREEN_WIDTH-point.x)>viewWidth || point.x < (SCREEN_WIDTH - _start_offSetX)/2) {
-                
-                self.endShowType = MLMOptionSelectViewEndShowBottomRight;
-                viewWidth = (SCREEN_WIDTH-point.x)>viewWidth?viewWidth:(SCREEN_WIDTH-point.x);
-                startPoint = CGPointMake(point.x, point.y+_start_offSetY+arrowHeight);
-            } else {
-                self.endShowType = MLMOptionSelectViewEndShowBottomLeft;
-                
-                _arrow_offset = 1-_arrow_offset;
-                viewWidth = (point.x+_start_offSetX)>viewWidth?viewWidth : point.x+_start_offSetX;
-            
-                startPoint = CGPointMake(point.x+_start_offSetX - viewWidth, point.y+_start_offSetY+arrowHeight);
-            }
-            self.showView.layer.anchorPoint = CGPointMake(_arrow_offset,0);
-
-        }
-            break;
         case MLMOptionSelectViewTop:
         {
-            if (overturn) {
-                _start_offSetY = _targetView.height;
+            if (_targetView) {
+                CGFloat centerX = _targetRect.origin.x + _targetRect.size.width/2;
+                if ((centerX - _edgeInsets.left) <= (SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right)/2 || viewWidth <= (SCREEN_WIDTH - _targetRect.origin.x - _edgeInsets.right)) {
+                    viewWidth = MIN(viewWidth, SCREEN_WIDTH - _targetRect.origin.x - _edgeInsets.right);
+                    _arrow_offset = _targetRect.size.width * _target_scale / viewWidth;
+                } else {
+                    viewWidth = MIN(viewWidth, CGRectGetMaxX(_targetRect) - _edgeInsets.left);
+                    _arrow_offset = (1 - _targetRect.size.width *(1 - _target_scale) / viewWidth);
+                }
             } else {
-                _start_offSetY = 0;
+                if (point.x < (viewWidth/2 + _edgeInsets.left)) {
+                    _arrow_offset = (point.x - _edgeInsets.left)/ viewWidth;
+                } else if (point.x > (viewWidth/2 + _edgeInsets.left)&& point.x < (SCREEN_WIDTH - viewWidth/2  - _edgeInsets.right)) {
+                    _arrow_offset = .5;
+                } else {
+                    _arrow_offset = (1 - (SCREEN_WIDTH - point.x - _edgeInsets.right) / viewWidth);
+                }
             }
-            end_Line = (point.y-_start_offSetY-arrowHeight)/cell_height;
-            end_Line = end_Line>line?line:end_Line;
-            viewHeight = end_Line * cell_height;
-            
-            if ((SCREEN_WIDTH-point.x)>viewWidth || point.x < (SCREEN_WIDTH - _start_offSetX)/2) {
-                self.endShowType = MLMOptionSelectViewEndShowTopRight;
-                viewWidth = (SCREEN_WIDTH-point.x)>viewWidth?viewWidth:(SCREEN_WIDTH-point.x);
-                startPoint = CGPointMake(point.x, point.y-_start_offSetY-viewHeight-arrowHeight);
+            if (_diretionType == MLMOptionSelectViewTop) {
+                end_Line = MIN(line, (point.y-arrowHeight- _edgeInsets.top)/cell_height);
+                viewHeight = end_Line * cell_height;
+                startPoint = CGPointMake(point.x - viewWidth * _arrow_offset, point.y - arrowHeight - viewHeight);
+                self.showView.layer.anchorPoint = CGPointMake(_arrow_offset, 1);
             } else {
-                self.endShowType = MLMOptionSelectViewEndShowTopLeft;
-                _arrow_offset = 1-_arrow_offset;
-                viewWidth = (point.x+_start_offSetX)>viewWidth?viewWidth : point.x+_start_offSetX;
-                startPoint = CGPointMake(point.x+_start_offSetX-viewWidth, point.y-_start_offSetY-viewHeight-arrowHeight);
+                end_Line = MIN(line, (SCREEN_HEIGHT - point.y-arrowHeight - _edgeInsets.bottom)/cell_height);
+                viewHeight = end_Line * cell_height;
+                startPoint = CGPointMake(point.x - viewWidth * _arrow_offset, point.y + arrowHeight);
+                self.showView.layer.anchorPoint = CGPointMake(_arrow_offset,0);
             }
-            self.showView.layer.anchorPoint = CGPointMake(_arrow_offset, 1);
-
         }
             break;
         case MLMOptionSelectViewLeft:
-        {
-            if (overturn) {
-                _start_offSetX = _targetView.width;
-            } else {
-                _start_offSetX = 0;
-            }
-            viewWidth = viewWidth < (point.x-_start_offSetX-arrowHeight) ? viewWidth : (point.x-_start_offSetX-arrowHeight);
-            if ((SCREEN_HEIGHT -point.y)>viewHeight || point.y<(SCREEN_HEIGHT -_start_offSetY)/2) {
-                self.endShowType = MLMOptionSelectViewEndShowLeftBottom;
-                end_Line = (SCREEN_HEIGHT - point.y)/cell_height;
-                end_Line = end_Line>line?line:end_Line;
-                viewHeight = end_Line * cell_height;
-
-                startPoint = CGPointMake(point.x - _start_offSetX -viewWidth-arrowHeight, point.y);
-            } else {
-                self.endShowType = MLMOptionSelectViewEndShowLeftTop;
-                _arrow_offset = 1-_arrow_offset;
-                end_Line = point.y/cell_height;
-                end_Line = end_Line>line?line:end_Line;
-                viewHeight = end_Line * cell_height;
-
-                startPoint = CGPointMake(point.x - _start_offSetX - viewWidth-arrowHeight, point.y+_start_offSetY-viewHeight);
-            }
-            self.showView.layer.anchorPoint = CGPointMake(1, _arrow_offset);
-        }
-            break;
         case MLMOptionSelectViewRight:
         {
-            if (overturn) {
-                _start_offSetX = _targetView.width;
+            if (_targetView) {
+                CGFloat centerY = _targetRect.origin.y + _targetRect.size.height/2;
+                if ((centerY - _edgeInsets.top) <= (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom)/2 || viewHeight <= (SCREEN_HEIGHT - _targetRect.origin.y - _edgeInsets.bottom)) {
+                    end_Line = MIN(line, (SCREEN_HEIGHT - _targetRect.origin.y - _edgeInsets.bottom)/cell_height);
+                    viewHeight = end_Line * cell_height;
+                    _arrow_offset = _targetRect.size.height * _target_scale / viewHeight;
+                } else {
+                    end_Line = MIN(line, (CGRectGetMaxY(_targetRect) - _edgeInsets.top)/cell_height);
+                    viewHeight = end_Line * cell_height;
+                    _arrow_offset = (1 - _targetRect.size.height *(1 - _target_scale) / viewHeight);
+                }
             } else {
-                _start_offSetX = 0;
-            }
-            viewWidth = viewWidth > (SCREEN_WIDTH - point.x-_start_offSetX-arrowHeight)?(SCREEN_WIDTH - point.x-arrowHeight):viewWidth;
-            if ((SCREEN_HEIGHT -point.y)>viewHeight || point.y<(SCREEN_HEIGHT -_start_offSetY)/2) {
-                self.endShowType = MLMOptionSelectViewEndShowRightBottom;
-                end_Line = (SCREEN_HEIGHT - point.y)/cell_height;
-                end_Line = end_Line>line?line:end_Line;
+                end_Line = MIN(line, (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom)/cell_height);
                 viewHeight = end_Line * cell_height;
-
-                startPoint = CGPointMake(point.x + _start_offSetX+arrowHeight, point.y);
+                if (point.y < (viewHeight/2 + _edgeInsets.top)) {
+                    _arrow_offset = (point.y - _edgeInsets.top)/ viewHeight;
+                } else if (point.y > (viewHeight/2 + _edgeInsets.top)&& point.y < (SCREEN_HEIGHT - viewHeight/2 - _edgeInsets.bottom)) {
+                    _arrow_offset = .5;
+                } else {
+                    _arrow_offset = (1 - (SCREEN_HEIGHT - point.y - _edgeInsets.bottom) / viewHeight);
+                }
+            }
+            if (_diretionType == MLMOptionSelectViewLeft) {
+                viewWidth = MIN(viewWidth, point.x - arrowHeight - _edgeInsets.left);
+                startPoint = CGPointMake(point.x - arrowHeight - viewWidth, point.y - viewHeight * _arrow_offset);
+                self.showView.layer.anchorPoint = CGPointMake(1, _arrow_offset);
             } else {
-                self.endShowType = MLMOptionSelectViewEndShowRightTop;
-                _arrow_offset = 1-_arrow_offset;
-                end_Line = point.y/cell_height;
-                end_Line = end_Line>line?line:end_Line;
-                viewHeight = end_Line * cell_height;
-
-                startPoint = CGPointMake(point.x + _start_offSetX+arrowHeight, point.y+_start_offSetY-viewHeight);
+                viewWidth = MIN(viewWidth, SCREEN_WIDTH - point.x-arrowHeight-_edgeInsets.right);
+                startPoint = CGPointMake(point.x + arrowHeight, point.y - viewHeight * _arrow_offset);
+                self.showView.layer.anchorPoint = CGPointMake(0, _arrow_offset);
             }
-            self.showView.layer.anchorPoint = CGPointMake(0, _arrow_offset);
         }
             break;
         default:
@@ -479,7 +379,6 @@ typedef enum : NSUInteger {
             arrow_layer = nil;
         }
     }
-    
     [self animation_show];
 }
 
@@ -575,34 +474,6 @@ typedef enum : NSUInteger {
     }
 }
 
-#pragma mark - cover
-- (void)setCoverColor:(UIColor *)coverColor {
-    _coverColor = coverColor;
-    self.cover.backgroundColor = _coverColor;
-}
-
-- (void)addConstraintToCover {
-    NSLayoutConstraint* leftConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeLeading multiplier:1.0f constant:0.0f];
-    NSLayoutConstraint* rightConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeTrailing multiplier:1.0f constant:0.0f];
-    NSLayoutConstraint* topConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeTop multiplier:1.0f constant:0.0f];
-    NSLayoutConstraint* bottomConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0.0f];
-    [KEYWINDOW addConstraints:@[leftConstraint, rightConstraint, topConstraint, bottomConstraint]];
-}
-
-- (UIView *)cover {
-    if (!_cover) {
-        _cover = [[UIView alloc] initWithFrame:KEYWINDOW.bounds];
-        _cover.backgroundColor = _coverColor;
-        _cover.alpha = 0;
-        _cover.translatesAutoresizingMaskIntoConstraints = NO;
-        __weak typeof(self) weakself = self;
-        [_cover tapHandle:^{
-            [weakself dismiss];
-        }];
-    }
-    return _cover;
-}
-
 #pragma mark - table
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
@@ -626,14 +497,6 @@ typedef enum : NSUInteger {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return _optionCellHeight?_optionCellHeight():cell_height;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return 0.00001f;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return 0.00001f;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -695,7 +558,34 @@ typedef enum : NSUInteger {
                 break;
         }
     }];
+}
 
+#pragma mark - cover
+- (void)setCoverColor:(UIColor *)coverColor {
+    _coverColor = coverColor;
+    self.cover.backgroundColor = _coverColor;
+}
+
+- (void)addConstraintToCover {
+    NSLayoutConstraint* leftConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeLeading multiplier:1.0f constant:0.0f];
+    NSLayoutConstraint* rightConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeTrailing multiplier:1.0f constant:0.0f];
+    NSLayoutConstraint* topConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeTop multiplier:1.0f constant:0.0f];
+    NSLayoutConstraint* bottomConstraint = [NSLayoutConstraint constraintWithItem:_cover attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:KEYWINDOW attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0.0f];
+    [KEYWINDOW addConstraints:@[leftConstraint, rightConstraint, topConstraint, bottomConstraint]];
+}
+
+- (UIView *)cover {
+    if (!_cover) {
+        _cover = [[UIView alloc] initWithFrame:KEYWINDOW.bounds];
+        _cover.backgroundColor = _coverColor;
+        _cover.alpha = 0;
+        _cover.translatesAutoresizingMaskIntoConstraints = NO;
+        __weak typeof(self) weakself = self;
+        [_cover tapHandle:^{
+            [weakself dismiss];
+        }];
+    }
+    return _cover;
 }
 
 @end

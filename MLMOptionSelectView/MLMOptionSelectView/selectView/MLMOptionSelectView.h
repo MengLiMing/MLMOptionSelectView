@@ -69,40 +69,29 @@ typedef void(^ActionBack)(NSIndexPath*);
 ///背景层颜色
 @property (nonatomic, strong) UIColor *coverColor;
 
-#pragma mark - 重要：改变箭头顶点的位置和动画开始位置，有参照物时设置，没有参照物时，不需要设置
-@property (nonatomic, assign) CGFloat arrow_offset;//(0 - 1之间)
-
 ///缩放 NO 竖直或水平展开 YES
 @property (nonatomic, assign) BOOL vhShow;
 
-
+///显示时，距离四周的间距,在有参考view时，弹出视图的一边和参考视图对齐，只有相应的两个方向的间距为设置的间距
+@property (nonatomic, assign) UIEdgeInsets edgeInsets;
 
 #pragma mark - method
 ///init
 - (instancetype)initOptionView;
 
-/**
- *  计算一个view相对于其父视图在window上的frame，可以通过这个rect和弹出方向，来设置弹出的point
- *
- *  @param targetView 围绕展示的view
- *
- *  @return 相对其父视图在window上的frame
- */
-
-+ (CGRect)targetView:(UIView *)targetView;
 
 /**
  *  弹出视图
  *
- *  @param viewPoint     弹出后视图的原点
- *  @param width         能够显示的最大宽度
- *  @param targetView    弹出视图围绕显示的view
- *  @param directionType 弹出方向，在上下或者左右都能显示时，优先选择
+ *  @param offset_Scale     弹出点在对用方向view上的百分比
+ *  @param width            能够显示的最大宽度
+ *  @param targetView       弹出视图围绕显示的view
+ *  @param directionType    弹出方向，在上下或者左右都能显示时，优先选择
  */
-- (void)showViewFromPoint:(CGPoint)viewPoint
-                viewWidth:(CGFloat)width
-               targetView:(UIView *)targetView
-                direction:(MLMOptionSelectViewDirection)directionType;
+- (void)showOffSetScale:(CGFloat)offset_Scale
+              viewWidth:(CGFloat)width
+             targetView:(UIView *)targetView
+              direction:(MLMOptionSelectViewDirection)directionType;
 
 /**
  *  弹出视图
@@ -117,5 +106,17 @@ typedef void(^ActionBack)(NSIndexPath*);
 
 ///消失
 - (void)dismiss;
+
+
+
+/**
+ *  计算一个view相对于其父视图在window上的frame，可以通过这个rect和弹出方向，来设置弹出的point
+ *
+ *  @param targetView 围绕展示的view
+ *
+ *  @return 相对其父视图在window上的frame
+ */
+
++ (CGRect)targetView:(UIView *)targetView;
 
 @end

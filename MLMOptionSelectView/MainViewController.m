@@ -80,7 +80,7 @@
     [self defaultCell];
     _cellView.vhShow = NO;
     _cellView.optionType = MLMOptionSelectViewTypeArrow;
-    [_cellView showTapPoint:point viewWidth:200 direction:_topOrRight?MLMOptionSelectViewTop:MLMOptionSelectViewRight];
+    [_cellView showTapPoint:point viewWidth:400 direction:_topOrRight?MLMOptionSelectViewBottom:MLMOptionSelectViewRight];
 }
 
 
@@ -88,7 +88,6 @@
 
 - (void)setTopOrRight:(BOOL)topOrRight {
     _topOrRight = topOrRight;
-    
     NSString *title;
     if (topOrRight) {
         title = @"上下";

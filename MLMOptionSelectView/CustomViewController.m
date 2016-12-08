@@ -50,10 +50,9 @@
 
 - (void)showView {
     [self defaultCell];
-    _cellView.arrow_offset = 0.9;
     _cellView.vhShow = NO;
     _cellView.optionType = MLMOptionSelectViewTypeArrow;
-    [_cellView showViewFromPoint:CGPointMake(SCREEN_WIDTH - 200 -10, 64 + 1) viewWidth:200 targetView:nil direction:MLMOptionSelectViewBottom];
+    [_cellView showTapPoint:CGPointMake(SCREEN_WIDTH -35, 64 + 1) viewWidth:200 direction:MLMOptionSelectViewBottom];
 }
 
 
@@ -67,13 +66,11 @@
     [leftRightView addGestureRecognizer:pan1];
     
     [leftRightView tapHandle:^{
-        CGRect label3Rect = [MLMOptionSelectView targetView:leftRightView];
         [self customCell];
-        _cellView.arrow_offset = 0.1;
         _cellView.vhShow = NO;
         _cellView.optionType = MLMOptionSelectViewTypeArrow;
         _cellView.selectedOption = nil;
-        [_cellView showViewFromPoint:CGPointMake(label3Rect.origin.x+40, label3Rect.origin.y) viewWidth:200 targetView:leftRightView direction:MLMOptionSelectViewRight];
+        [_cellView showOffSetScale:.2 viewWidth:400 targetView:leftRightView direction:MLMOptionSelectViewRight];
     }];
 }
 
@@ -89,12 +86,10 @@
     
 
     [topBottomView tapHandle:^{
-        CGRect label3Rect = [MLMOptionSelectView targetView:topBottomView];
         [self defaultCell];
-        _cellView.arrow_offset = .5;
         _cellView.vhShow = NO;
         _cellView.optionType = MLMOptionSelectViewTypeArrow;
-        [_cellView showViewFromPoint:CGPointMake(label3Rect.origin.x, label3Rect.origin.y+label3Rect.size.height) viewWidth:200 targetView:topBottomView direction:MLMOptionSelectViewBottom];
+        [_cellView showOffSetScale:.5 viewWidth:400 targetView:topBottomView direction:MLMOptionSelectViewBottom];
     }];
 }
 
@@ -110,12 +105,10 @@
     
 
     [vhBottomView tapHandle:^{
-        CGRect label3Rect = [MLMOptionSelectView targetView:vhBottomView];
         [self defaultCell];
-        _cellView.arrow_offset = .5;
         _cellView.vhShow = YES;
         _cellView.optionType = MLMOptionSelectViewTypeCustom;
-        [_cellView showViewFromPoint:CGPointMake(label3Rect.origin.x, label3Rect.origin.y+label3Rect.size.height) viewWidth:200 targetView:vhBottomView direction:MLMOptionSelectViewBottom];
+        [_cellView showOffSetScale:.5 viewWidth:200 targetView:vhBottomView direction:MLMOptionSelectViewBottom];
     }];
 }
 
