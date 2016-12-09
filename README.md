@@ -7,15 +7,10 @@
 ![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/pointShow.gif)
 ![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/viewShow.gif)
 
-###更新 - 添加属性
-```objc
-///显示时，距离四周的间距,在有参考view时，弹出视图的一边和参考视图对齐，只有相应的两个方向的间距为设置的间距
-@property (nonatomic, assign) UIEdgeInsets edgeInsets;
-```
 ###更新 - 更改之前的弹出视图方法,具体使用参考demo
 ```objc
 /**
- *  弹出视图
+ *  弹出视图，配合edgeInsets使用,如果不设置edgeInsets，弹出效果会根据width进行适配弹出，建议使用edgeInsets
  *
  *  @param offset_Scale     弹出点在对用方向view上的百分比
  *  @param width            能够显示的最大宽度
@@ -27,6 +22,23 @@
              targetView:(UIView *)targetView
               direction:(MLMOptionSelectViewDirection)directionType;
 ```
+###更新 - 添加新方法，弹出中心点视图
+```objc
+/**
+ *  弹出视图
+ *
+ *  @param viewCenter      弹出视图的中心点
+ *  @param width           能够显示的最大宽度
+ */
+- (void)showViewCenter:(CGPoint)viewCenter
+             viewWidth:(CGFloat)width;
+```
+###更新 - 添加属性
+```objc
+///显示时，距离四周的间距，具体对齐方式，可以自行根据需求设置,弹出样式设置更加灵活
+@property (nonatomic, assign) UIEdgeInsets edgeInsets;
+```
+
 ###更新 - 添加新方法，从点击点展开视图,具体使用参考Demo
 ```objc
 /**
