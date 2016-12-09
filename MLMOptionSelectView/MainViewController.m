@@ -79,11 +79,10 @@
     CGPoint point = [touch locationInView:self.view];
     [self defaultCell];
     _cellView.vhShow = NO;
+    _cellView.edgeInsets = UIEdgeInsetsMake(64, 10, 10, 10);
     _cellView.optionType = MLMOptionSelectViewTypeArrow;
-    [_cellView showTapPoint:point viewWidth:400 direction:_topOrRight?MLMOptionSelectViewBottom:MLMOptionSelectViewRight];
+    [_cellView showTapPoint:point viewWidth:200 direction:_topOrRight?MLMOptionSelectViewBottom:MLMOptionSelectViewRight];
 }
-
-
 
 
 - (void)setTopOrRight:(BOOL)topOrRight {

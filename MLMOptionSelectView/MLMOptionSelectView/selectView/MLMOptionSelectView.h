@@ -56,7 +56,7 @@ typedef void(^ActionBack)(NSIndexPath*);
 // - 有默认值 - //
 #pragma mark - 起点偏移
 ///最大显示行数，默认大于5行显示5行
-@property (nonatomic, assign) NSInteger maxLine;
+@property (nonatomic, assign) CGFloat maxLine;
 ///是否可以删除,YES时请在删除回调中删除对应数据
 @property (nonatomic, assign) BOOL canEdit;
 ///风格
@@ -72,16 +72,25 @@ typedef void(^ActionBack)(NSIndexPath*);
 ///缩放 NO 竖直或水平展开 YES
 @property (nonatomic, assign) BOOL vhShow;
 
-///显示时，距离四周的间距,在有参考view时，弹出视图的一边和参考视图对齐，只有相应的两个方向的间距为设置的间距
+///显示时，距离四周的间距，具体对齐方式，可以自行根据需求设置
 @property (nonatomic, assign) UIEdgeInsets edgeInsets;
 
 #pragma mark - method
 ///init
 - (instancetype)initOptionView;
 
+/**
+ *  计算一个view相对于其父视图在window上的frame，可以通过这个rect和弹出方向，来设置弹出的point
+ *
+ *  @param targetView 围绕展示的view
+ *
+ *  @return 相对其父视图在window上的frame
+ */
+
++ (CGRect)targetView:(UIView *)targetView;
 
 /**
- *  弹出视图
+ *  弹出视图，配合edgeInsets使用,如果不设置edgeInsets，弹出效果会根据width进行适配弹出，建议使用edgeInsets
  *
  *  @param offset_Scale     弹出点在对用方向view上的百分比
  *  @param width            能够显示的最大宽度
@@ -104,19 +113,18 @@ typedef void(^ActionBack)(NSIndexPath*);
            viewWidth:(CGFloat)width
            direction:(MLMOptionSelectViewDirection)directionType;
 
-///消失
-- (void)dismiss;
-
-
 
 /**
- *  计算一个view相对于其父视图在window上的frame，可以通过这个rect和弹出方向，来设置弹出的point
+ *  弹出视图
  *
- *  @param targetView 围绕展示的view
- *
- *  @return 相对其父视图在window上的frame
+ *  @param viewCenter      弹出视图的中心点
+ *  @param width           能够显示的最大宽度
  */
+- (void)showViewCenter:(CGPoint)viewCenter
+             viewWidth:(CGFloat)width;
 
-+ (CGRect)targetView:(UIView *)targetView;
+
+///消失
+- (void)dismiss;
 
 @end
