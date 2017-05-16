@@ -4,6 +4,7 @@
 可设置弹出的方向，是否有箭头，是否可以编辑删除。
 
 #效果图展示
+
 ![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/pointShow.gif)
 ![image](https://github.com/MengLiMing/MLMOptionSelectView/blob/master/viewShow.gif)
 
