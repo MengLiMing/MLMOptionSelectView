@@ -118,13 +118,42 @@ static CGFloat arrow_W = 15;//箭头宽
 #pragma mark - 弹出之前计算行数、高度等
 - (void)beforeShowWidth:(CGFloat)width
         targetView:(UIView *)targetView {
+    if (_h_v_Screen) {
+        switch (_diretionType) {
+            case MLMOptionSelectViewTop:
+            {
+                _diretionType = _h_v_Left?MLMOptionSelectViewRight:MLMOptionSelectViewLeft;
+            }
+                break;
+            case MLMOptionSelectViewBottom:
+            {
+                _diretionType = _h_v_Left?MLMOptionSelectViewLeft:MLMOptionSelectViewRight;
+            }
+                break;
+            case MLMOptionSelectViewLeft:
+            {
+                _diretionType = _h_v_Left?MLMOptionSelectViewTop:MLMOptionSelectViewBottom;
+            }
+                break;
+            case MLMOptionSelectViewRight:
+            {
+                _diretionType = _h_v_Left?MLMOptionSelectViewBottom:MLMOptionSelectViewTop;
+            }
+                break;
+            default:
+                break;
+        }
+        self.transform = CGAffineTransformMakeRotation(_h_v_Left?M_PI_2:(-M_PI_2));
+    } else {
+        self.transform = CGAffineTransformIdentity;
+    }
+    
     //显示行数
     end_Line = [self showLine];
     if (end_Line == 0) {
         return;
     }
     [self reloadData];
-
     _targetView = targetView;
 
     //箭头高度
@@ -135,9 +164,16 @@ static CGFloat arrow_W = 15;//箭头宽
     }
     //宽高
     cell_height = _optionCellHeight?_optionCellHeight():cell_height;
-    viewWidth = MIN(width,SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right);
-    end_Line = MIN(end_Line, (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom)/cell_height);
-    viewHeight = end_Line * cell_height;
+    if (_h_v_Screen) {
+        viewHeight = MIN(width,SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right);
+        end_Line = MIN(end_Line, (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom)/cell_height);
+        viewWidth = end_Line * cell_height;
+    } else {
+        viewWidth = MIN(width,SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right);
+        end_Line = MIN(end_Line, (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom)/cell_height);
+        viewHeight = end_Line * cell_height;
+    }
+
     //添加视图
     [KEYWINDOW addSubview:self.cover];
     [self.showView addSubview:self];
@@ -149,10 +185,10 @@ static CGFloat arrow_W = 15;//箭头宽
 - (void)showTapPoint:(CGPoint)tapPoint
            viewWidth:(CGFloat)width
            direction:(MLMOptionSelectViewDirection)directionType {
-    [self beforeShowWidth:width targetView:nil];
-    point = tapPoint;
     //优先弹出方向
     _diretionType = directionType;
+    [self beforeShowWidth:width targetView:nil];
+    point = tapPoint;
     //调节显示
     [self showByDiretionType];
     
@@ -164,9 +200,11 @@ static CGFloat arrow_W = 15;//箭头宽
               viewWidth:(CGFloat)width
              targetView:(UIView *)targetView
               direction:(MLMOptionSelectViewDirection)directionType {
+    //优先弹出方向
+    _diretionType = directionType;
     [self beforeShowWidth:width targetView:targetView];
     _targetRect = [MLMOptionSelectView targetView:targetView];
-    switch (directionType) {
+    switch (_diretionType) {
         case MLMOptionSelectViewTop:
         case MLMOptionSelectViewBottom:
         {
@@ -186,8 +224,7 @@ static CGFloat arrow_W = 15;//箭头宽
         default:
             break;
     }
-    //优先弹出方向
-    _diretionType = directionType;
+
     //调节显示
     [self showByDiretionType];
     
@@ -204,7 +241,6 @@ static CGFloat arrow_W = 15;//箭头宽
     viewWidth = MIN(viewWidth, MIN(viewCenter.x - _edgeInsets.left, SCREEN_WIDTH - viewCenter.x - _edgeInsets.right)*2);
     CGFloat maxHeight = MIN(end_Line * cell_height, SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom);
     viewHeight = MIN(maxHeight, MIN(viewCenter.y - _edgeInsets.top, SCREEN_HEIGHT - viewCenter.y - _edgeInsets.bottom)*2);
-
     [self showAndDraw];
 }
 

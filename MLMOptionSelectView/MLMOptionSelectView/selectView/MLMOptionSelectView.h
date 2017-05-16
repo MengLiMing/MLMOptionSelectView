@@ -75,6 +75,13 @@ typedef void(^ActionBack)(NSIndexPath*);
 ///显示时，距离四周的间距，具体对齐方式，可以自行根据需求设置
 @property (nonatomic, assign) UIEdgeInsets edgeInsets;
 
+
+///在竖屏状态下使用全屏（横屏），设置方向时使用
+@property (nonatomic, assign) BOOL h_v_Screen;
+///横屏是状态栏的方向，YES左，NO右
+@property (nonatomic, assign) BOOL h_v_Left;
+
+
 #pragma mark - method
 ///init
 - (instancetype)initOptionView;
