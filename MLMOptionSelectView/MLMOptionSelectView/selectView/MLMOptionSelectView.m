@@ -118,35 +118,6 @@ static CGFloat arrow_W = 15;//箭头宽
 #pragma mark - 弹出之前计算行数、高度等
 - (void)beforeShowWidth:(CGFloat)width
         targetView:(UIView *)targetView {
-    if (_h_v_Screen) {
-        switch (_diretionType) {
-            case MLMOptionSelectViewTop:
-            {
-                _diretionType = _h_v_Left?MLMOptionSelectViewRight:MLMOptionSelectViewLeft;
-            }
-                break;
-            case MLMOptionSelectViewBottom:
-            {
-                _diretionType = _h_v_Left?MLMOptionSelectViewLeft:MLMOptionSelectViewRight;
-            }
-                break;
-            case MLMOptionSelectViewLeft:
-            {
-                _diretionType = _h_v_Left?MLMOptionSelectViewTop:MLMOptionSelectViewBottom;
-            }
-                break;
-            case MLMOptionSelectViewRight:
-            {
-                _diretionType = _h_v_Left?MLMOptionSelectViewBottom:MLMOptionSelectViewTop;
-            }
-                break;
-            default:
-                break;
-        }
-        self.transform = CGAffineTransformMakeRotation(_h_v_Left?M_PI_2:(-M_PI_2));
-    } else {
-        self.transform = CGAffineTransformIdentity;
-    }
     
     //显示行数
     end_Line = [self showLine];
@@ -164,15 +135,10 @@ static CGFloat arrow_W = 15;//箭头宽
     }
     //宽高
     cell_height = _optionCellHeight?_optionCellHeight():cell_height;
-    if (_h_v_Screen) {
-        viewHeight = MIN(width,SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right);
-        end_Line = MIN(end_Line, (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom)/cell_height);
-        viewWidth = end_Line * cell_height;
-    } else {
-        viewWidth = MIN(width,SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right);
-        end_Line = MIN(end_Line, (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom)/cell_height);
-        viewHeight = end_Line * cell_height;
-    }
+    viewWidth = MIN(width,SCREEN_WIDTH - _edgeInsets.left - _edgeInsets.right);
+    end_Line = MIN(end_Line, (SCREEN_HEIGHT - _edgeInsets.top - _edgeInsets.bottom)/cell_height);
+    viewHeight = end_Line * cell_height;
+
 
     //添加视图
     [KEYWINDOW addSubview:self.cover];

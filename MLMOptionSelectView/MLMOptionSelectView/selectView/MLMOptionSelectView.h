@@ -76,11 +76,6 @@ typedef void(^ActionBack)(NSIndexPath*);
 @property (nonatomic, assign) UIEdgeInsets edgeInsets;
 
 
-///在竖屏状态下使用全屏（横屏），设置方向时使用
-@property (nonatomic, assign) BOOL h_v_Screen;
-///横屏是状态栏的方向，YES左，NO右
-@property (nonatomic, assign) BOOL h_v_Left;
-
 
 #pragma mark - method
 ///init

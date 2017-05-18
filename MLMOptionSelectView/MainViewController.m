@@ -12,7 +12,6 @@
 @interface MainViewController ()
 {
     NSMutableArray *listArray;
-    BOOL h_v_Screen;
 }
 @property (nonatomic, strong) MLMOptionSelectView *cellView;
 
@@ -29,12 +28,7 @@
     
     [self listArray];
     
-    UIBarButtonItem *right1 = [[UIBarButtonItem alloc] initWithTitle:@"下个页面" style:UIBarButtonItemStylePlain target:self action:@selector(nextvc)];
-    
-    //如果你的项目是适应横竖屏的  不需要设置此值，如果你的项目是竖屏状态，但是这个页面需要旋转180度，假横屏，则使用此值
-    UIBarButtonItem *right2 = [[UIBarButtonItem alloc] initWithTitle:@"横竖屏" style:UIBarButtonItemStylePlain target:self action:@selector(changeV_h)];
-    
-    self.navigationItem.rightBarButtonItems = @[right1,right2];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"下个页面" style:UIBarButtonItemStylePlain target:self action:@selector(nextvc)];
     
     self.topOrRight = YES;
     
@@ -85,11 +79,9 @@
     CGPoint point = [touch locationInView:self.view];
     [self defaultCell];
     _cellView.vhShow = NO;
-    _cellView.h_v_Screen = h_v_Screen;
     _cellView.edgeInsets = UIEdgeInsetsMake(64, 10, 10, 10);
     _cellView.optionType = MLMOptionSelectViewTypeArrow;
-    [_cellView showTapPoint:point viewWidth:150 direction:_topOrRight?MLMOptionSelectViewBottom:MLMOptionSelectViewRight];
-}
+    [_cellView showTapPoint:point viewWidth:200 direction:_topOrRight?MLMOptionSelectViewBottom:MLMOptionSelectViewRight];}
 
 
 - (void)setTopOrRight:(BOOL)topOrRight {
@@ -105,10 +97,6 @@
 
 - (void)changeTR {
     self.topOrRight = !self.topOrRight;
-}
-
-- (void)changeV_h {
-    h_v_Screen = !h_v_Screen;
 }
 
 - (void)nextvc {
