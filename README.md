@@ -24,17 +24,6 @@
               direction:(MLMOptionSelectViewDirection)directionType;
 ```
 
-###更新 - 添加属性，用于一些手机还是竖屏屏状态下，但是页面需要横屏显示时,具体使用参照demo
-```objc
-
-///在竖屏状态下使用全屏（横屏），设置方向时使用
-@property (nonatomic, assign) BOOL h_v_Screen;
-///横屏是状态栏的方向，YES左，NO右
-@property (nonatomic, assign) BOOL h_v_Left;
-
-```
-
-
 ###更新 - 添加新方法，弹出中心点视图
 ```objc
 /**
